@@ -1,4 +1,4 @@
-
+## AF function ##
 ############## Common functions ##############
 #ARVID: is.binary(c(NA,0,1)) gives error message
 is.binary <- function(v) {
