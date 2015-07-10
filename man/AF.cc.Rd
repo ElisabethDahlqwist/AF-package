@@ -19,7 +19,7 @@ AF.cc(formula, data, exposure, clusterid, sampling.design = "non.matched")
 An estimated attributable fraction and standard errors for the estimate.
 }
 \description{
-Estimate the attributable fraction for data from a mached or non-matched case-control sampling design.
+\code{AF.cc} estimate the attributable fraction for data from a mached or non-matched case-control sampling design.
 }
 \details{
 Note that the estimation is an approximation based on the assumption that the outcome is rare.
@@ -28,6 +28,6 @@ Note that the estimation is an approximation based on the assumption that the ou
 Elisabeth Dahlqwist, Arvid Sjölander
 }
 \seealso{
-glm and gee in package "drgee"
+\code{\link{glm}} and \code{\link{gee}} used for estimating the conditional logistic regression for mached case-control.
 }
 

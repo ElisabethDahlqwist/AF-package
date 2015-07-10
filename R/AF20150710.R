@@ -10,15 +10,15 @@ is.binary <- function(v) {
 ############## AF function for cross-sectional sampling design #####################
 #' @title Attributable fraction cross-sectional sampling design
 #' @description \code{AF.cs} estimate the model-based adjusted attributable fraction for data from a cross-sectional sampling design.
-#' @param formula an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a logistic regression by glm. For details see documentation on glm.
+#' @param formula an object of class "\code{\link{formula}}" (or one that can be coerced to that class): a symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a logistic regression by \code{\link{glm}}.
 #' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which the function is called.
 #' @param exposure the exposure variable. Must be binary (0/1).
 #' @param clusterid for clustered data specify the variable in the data frame which is the cluster id in order to calculate cluster robust standard errors.
-#' @return \item{AF.est}{the estimated attributable fraction}
+#' @return \item{AF.est}{estimated attributable fraction}
 #' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est})}
-#' @return \item{P}{estimated proportion of cases}
+#' @return \item{P}{estimated factual proportion of cases}
 #' @return \item{P.var}{estimated variance of the estimate \code{P}}
-#' @return \item{P0}{estimated proportion of cases if exposure were eliminated}
+#' @return \item{P0}{estimated counterfactual proportion of cases if exposure would be eliminated}
 #' @return \item{P0.var}{estimated variance of the estimate \code{P0}}
 #' @details Note that the estimation is an approximation based on the assumption that the outcome is rare.
 #' @author Elisabeth Dahlqwist, Arvid Sjölander
@@ -109,17 +109,22 @@ AF.cs<- function(formula, data, exposure, clusterid){
 ############## AF function for cohort time-to-event outcomes #####################
 library(survival)
 #' @title Attributable fraction function from cohort sampling design with time-to-event outcomes.
-#' @description Estimate the model-based adjusted attributable fraction function for data from a cohort sampling design with time-to-event outcomes.
+#' @description \code{AF.ch} estimate the model-based adjusted attributable fraction function for data from a cohort sampling design with time-to-event outcomes.
 #' @param formula a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a survival object as returned by the Surv function. A symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a Cox Proportional Hazards model in the survival package. For details see documentation on coxph.
 #' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which the function is called.
 #' @param exposure the exposure variable. Must be binary (0/1).
 #' @param ties a character string specifying the method for tie handling. If there are no tied death times all the methods are equivalent. Use the Breslow method by default.
 #' @param time.sequence a single value or vector of time points of which the attrubutable fraction function will be calculated. If not specified the death times will be used as default.
 #' @param clusterid for clustered data specify the variable in the data frame which is the cluster id in order to calculate cluster robust standard errors.
-#' @return An estimated attributable fraction function and standard errors for the estimate for every time point as specified by time.sequence.
+#' @return \item{AF.est}{estimated attributable fraction function for every time point specified by \code{time.sequence}}
+#' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est}) for every time point specified by \code{time.sequence}}
+#' @return \item{St.est}{estimated factual survival function}
+#' @return \item{St.var}{estimated variance of the estimate \code{St.est}}
+#' @return \item{St0.est}{estimated counterfactual survival function if exposure would be eliminated}
+#' @return \item{St0.var}{estimated variance of the estimate \code{St.est}}
 #' @details Note that the estimation is an approximation based on the assumption that the outcome is rare.
 #' @author Elisabeth Dahlqwist, Arvid Sjölander
-#' @seealso glm and gee in package "drgee"
+#' @seealso \code{\link{coxph}} and \code{\link{Surv}}.
 #' @export
 AF.ch<- function(formula, data, exposure, ties="breslow",
                    time.sequence, clusterid){
@@ -253,7 +258,7 @@ AF.ch<- function(formula, data, exposure, ties="breslow",
 library(survival)
 library(drgee)
 #' @title Attributable fraction mached or non-matched case-control sampling design.
-#' @description Estimate the attributable fraction for data from a mached or non-matched case-control sampling design.
+#' @description \code{AF.cc} estimate the attributable fraction for data from a mached or non-matched case-control sampling design.
 #' @param formula an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a logistic regression by glm for non-matched cc and conditional logistic regression by gee (in package drgee) for macthed cc. For details see documentation on glm or gee.
 #' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which the function is called.
 #' @param exposure the exposure variable. Must be binary (0/1).
@@ -261,7 +266,7 @@ library(drgee)
 #' @return An estimated attributable fraction and standard errors for the estimate.
 #' @details Note that the estimation is an approximation based on the assumption that the outcome is rare.
 #' @author Elisabeth Dahlqwist, Arvid Sjölander
-#' @seealso \code{\link{glm}} and \code{\link{gee}} in the package \code{\link{drgee}}.
+#' @seealso \code{\link{glm}} and \code{\link{gee}} used for estimating the conditional logistic regression for mached case-control.
 #' @export
 AF.cc<-function(formula, data, exposure, clusterid,
                   sampling.design = "non.matched"){

@@ -20,10 +20,20 @@ AF.ch(formula, data, exposure, ties = "breslow", time.sequence, clusterid)
 \item{clusterid}{for clustered data specify the variable in the data frame which is the cluster id in order to calculate cluster robust standard errors.}
 }
 \value{
-An estimated attributable fraction function and standard errors for the estimate for every time point as specified by time.sequence.
+\item{AF.est}{estimated attributable fraction function for every time point specified by \code{time.sequence}}
+
+\item{AF.var}{estimated variance of the AF estimate (\code{AF.est}) for every time point specified by \code{time.sequence}}
+
+\item{St.est}{estimated factual survival function}
+
+\item{St.var}{estimated variance of the estimate \code{St.est}}
+
+\item{St0.est}{estimated counterfactual survival function if exposure would be eliminated}
+
+\item{St0.var}{estimated variance of the estimate \code{St.est}}
 }
 \description{
-Estimate the model-based adjusted attributable fraction function for data from a cohort sampling design with time-to-event outcomes.
+\code{AF.ch} estimate the model-based adjusted attributable fraction function for data from a cohort sampling design with time-to-event outcomes.
 }
 \details{
 Note that the estimation is an approximation based on the assumption that the outcome is rare.
@@ -32,6 +42,6 @@ Note that the estimation is an approximation based on the assumption that the ou
 Elisabeth Dahlqwist, Arvid Sjölander
 }
 \seealso{
-glm and gee in package "drgee"
+\code{\link{coxph}} and \code{\link{Surv}}.
 }
 

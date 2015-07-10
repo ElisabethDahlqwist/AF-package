@@ -7,7 +7,7 @@
 AF.cs(formula, data, exposure, clusterid)
 }
 \arguments{
-\item{formula}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a logistic regression by glm. For details see documentation on glm.}
+\item{formula}{an object of class "\code{\link{formula}}" (or one that can be coerced to that class): a symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a logistic regression by \code{\link{glm}}.}
 
 \item{data}{an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which the function is called.}
 
@@ -16,20 +16,20 @@ AF.cs(formula, data, exposure, clusterid)
 \item{clusterid}{for clustered data specify the variable in the data frame which is the cluster id in order to calculate cluster robust standard errors.}
 }
 \value{
-\item{AF.est}{the estimated attributable fraction}
+\item{AF.est}{estimated attributable fraction}
 
 \item{AF.var}{estimated variance of the AF estimate (\code{AF.est})}
 
-\item{P}{estimated proportion of cases}
+\item{P}{estimated factual proportion of cases}
 
 \item{P.var}{estimated variance of the estimate \code{P}}
 
-\item{P0}{estimated proportion of cases if exposure were eliminated}
+\item{P0}{estimated counterfactual proportion of cases if exposure would be eliminated}
 
 \item{P0.var}{estimated variance of the estimate \code{P0}}
 }
 \description{
-Estimate the model-based adjusted attributable fraction for data from a cross-sectional sampling design.
+\code{AF.cs} estimate the model-based adjusted attributable fraction for data from a cross-sectional sampling design.
 }
 \details{
 Note that the estimation is an approximation based on the assumption that the outcome is rare.
@@ -38,6 +38,6 @@ Note that the estimation is an approximation based on the assumption that the ou
 Elisabeth Dahlqwist, Arvid Sjölander
 }
 \seealso{
-\code{\link{glm}} and \code{\link{gee}} in the package \code{\link{drgee}}.
+\code{\link{glm}}.
 }
 
