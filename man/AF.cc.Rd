@@ -16,16 +16,40 @@ AF.cc(formula, data, exposure, clusterid, sampling.design = "non.matched")
 \item{sampling.design}{a string which specify if the sampling is matched or non-matched case-control. Default setting is non-matched.}
 }
 \value{
-An estimated attributable fraction and standard errors for the estimate.
+\item{AF.est}{estimated attributable fraction}
+
+\item{AF.var}{estimated variance of the AF estimate (\code{AF.est})}
+
+\item{log.or}{estimated log odds ratio}
 }
 \description{
 \code{AF.cc} estimate the attributable fraction for data from a mached or non-matched case-control sampling design.
 }
 \details{
-Note that the estimation is an approximation based on the assumption that the outcome is rare.
+\code{Af.cc} estimate the attributable fraction for binary outcomes
+under the scenario of an elimination of the exposure adjusted for confounders
+by logistic regression for unmatched case-control and conditional logistic regression for matched case-control.
+The estimation is an approximation based on the assumption that the outcome is rare.
+Let the AF be defined as
+\deqn{AF = 1 - Pr(Y_0 = 1) / Pr(Y = 1)}
+where \eqn{Pr(Y_0 = 1)} denote the counterfactual probability of the outcome if
+the exposure would be eliminated from the population. Under the assumption that Z
+is the only confounder the probability \eqn{Pr(Y_0 = 1)} can be expressed as
+\deqn{E_z{Pr(Y = 1 | X = 0, Z)}}
+Using Baye's theorem this imply that the AF can be defined as
+  \deqn{AF = 1-\frac{E_z\{Pr(Y=1\mid X=0,Z)\}}{Pr(Y=1)}=1-E{RR^{-X}(Z)|Y=1}}{%
+AF = 1 - E_z{Pr( Y=1 | X=0, Z)}/ Pr(Y = 1) = 1 - E{RR^{-X}(Z) | Y = 1}}
+where \eqn{E{RR^{-X}(Z) | Y = 1}} can be estimated by the relative risk.
+Moreover, the relative risk can be approximated by the odds ratio if the outcome is rare.
+The odds ratio is estimated by logistic regression or conditional logistic regression. Thus,
+\deqn{1 - E{RR^{-X}(Z) | Y = 1} \approx 1 - E{OR^{-X}(Z) | Y = 1}}
+where \eqn{E{OR^{-X}(Z) | Y = 1}} is the sum of the parameters depending on the exposure X.
 }
 \author{
-Elisabeth Dahlqwist, Arvid Sjölander
+Elisabeth Dahlqwist, Arvid Sjolander
+}
+\references{
+Bruzzi, P., Green, S. B., Byar, D., Brinton, L. A., and Schairer, C. (1985). Estimating the population attributable risk for multiple risk factors using case-control data. \emph{American Journal of Epidemiology} \bold{122}, 904-914.
 }
 \seealso{
 \code{\link{glm}} and \code{\link{gee}} used for estimating the conditional logistic regression for mached case-control.

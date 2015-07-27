@@ -20,9 +20,20 @@ is.binary <- function(v) {
 #' @return \item{P.var}{estimated variance of the estimate \code{P}}
 #' @return \item{P0}{estimated counterfactual proportion of cases if exposure would be eliminated}
 #' @return \item{P0.var}{estimated variance of the estimate \code{P0}}
-#' @details Note that the estimation is an approximation based on the assumption that the outcome is rare.
-#' @author Elisabeth Dahlqwist, Arvid Sjölander
+#' @details \code{Af.cs} estimate the attributable fraction for binary outcomes
+#' under the scenario of an elimination of the exposure adjusted for confounders
+#' by logistic regression. Let the AF be defined as 
+#' \deqn{AF = 1 - Pr(Y_0 = 1) / Pr(Y = 1)}
+#' where \eqn{Pr(Y_0 = 1)} denote the counterfactual probability of the outcome if
+#' the exposure would be eliminated from the population.
+#' By adjusting the attributable fraction for confounders the counterfactual probablity
+#'  \eqn{Pr(Y_0 = 1)} can be estimated. \eqn{Pr(Y_0 = 1)} is denoted as \code{P0} in the 
+#'  output and \eqn{Pr(Y = 1)} is denoted as \code{P}.
+#' @author Elisabeth Dahlqwist, Arvid Sjolander
 #' @seealso \code{\link{glm}}.
+#' @references Bruzzi, P., Green, S. B., Byar, D., Brinton, L. A., and Schairer, C. (1985). Estimating the population attributable risk for multiple risk factors using case-control data. \emph{American Journal of Epidemiology} \bold{122}, 904-914.
+#' @references Greenland, S. (1984). Bias in methods for deriving standardized morbidity ratio and attributable fraction estimates. \emph{Statistics in medicine} \bold{3}, 131-141. 
+#' @references Greenland, S. and Drescher, K. (1993). Maximum Likelihood Estimation of the Attributable Fraction from logistic Models. \emph{Biometrics} \bold{49}, 865-872.
 #' @export
 AF.cs<- function(formula, data, exposure, clusterid){
   #### Preparation of dataset ####
@@ -122,9 +133,19 @@ library(survival)
 #' @return \item{St.var}{estimated variance of the estimate \code{St.est}}
 #' @return \item{St0.est}{estimated counterfactual survival function if exposure would be eliminated}
 #' @return \item{St0.var}{estimated variance of the estimate \code{St.est}}
-#' @details Note that the estimation is an approximation based on the assumption that the outcome is rare.
-#' @author Elisabeth Dahlqwist, Arvid Sjölander
+#' @details \code{Af.ch} estimate the attributable fraction for time-to-event outcomes
+#' under the scenario of an elimination of the exposure adjusted for confounders
+#' by Cox Proportional Hazards model. Let the Attributable fraction function be defined as 
+#' \deqn{AF = 1 - ( 1 - St0(t) ) / ( 1 - St(t) )}
+#' where \eqn{St0(t)} denote the counterfactual survival function for the event if
+#' the exposure would be eliminated from the population at baseline. \eqn{St(t)} is the factual survival function. 
+#' \eqn{St0(t)} is estimated by adjusting for confounders at baseline using the Cox Proportional Hazards model.
+#' \eqn{St0(t)} is denoted as \code{St0.est} in the output and \eqn{St(t)}
+#' is denoted as \code{St.est}.
+#' @author Elisabeth Dahlqwist, Arvid Sjolander
 #' @seealso \code{\link{coxph}} and \code{\link{Surv}}.
+#' @references Chen, L., Lin, D. Y., and Zeng, D. (2010). Attributable fraction functions for censored event times. \emph{Biometrika} \bold{97}, 713-726.
+#' @references Sjolander, A. and Vansteelandt, S. (2014). Doubly robust estimation of attributable fractions in survival analysis. \emph{Statistical Methods in Medical Research}.
 #' @export
 AF.ch<- function(formula, data, exposure, ties="breslow",
                    time.sequence, clusterid){
@@ -263,10 +284,30 @@ library(drgee)
 #' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which the function is called.
 #' @param exposure the exposure variable. Must be binary (0/1).
 #' @param sampling.design a string which specify if the sampling is matched or non-matched case-control. Default setting is non-matched.
-#' @return An estimated attributable fraction and standard errors for the estimate.
-#' @details Note that the estimation is an approximation based on the assumption that the outcome is rare.
-#' @author Elisabeth Dahlqwist, Arvid Sjölander
+#' @return \item{AF.est}{estimated attributable fraction}
+#' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est})}
+#' @return \item{log.or}{estimated log odds ratio}
+#' @details \code{Af.cc} estimate the attributable fraction for binary outcomes
+#' under the scenario of an elimination of the exposure adjusted for confounders
+#' by logistic regression for unmatched case-control and conditional logistic regression for matched case-control. 
+#' The estimation is an approximation based on the assumption that the outcome is rare.
+#' Let the AF be defined as 
+#' \deqn{AF = 1 - Pr(Y_0 = 1) / Pr(Y = 1)}
+#' where \eqn{Pr(Y_0 = 1)} denote the counterfactual probability of the outcome if
+#' the exposure would be eliminated from the population. Under the assumption that Z
+#' is the only confounder the probability \eqn{Pr(Y_0 = 1)} can be expressed as
+#' \deqn{E_z{Pr(Y = 1 | X = 0, Z)}}
+#' Using Baye's theorem this imply that the AF can be defined as
+#'   \deqn{AF = 1-\frac{E_z\{Pr(Y=1\mid X=0,Z)\}}{Pr(Y=1)}=1-E{RR^{-X}(Z)|Y=1}}{%
+#' AF = 1 - E_z{Pr( Y=1 | X=0, Z)} / Pr(Y = 1) = 1 - E{RR^{-X}(Z) | Y = 1}} 
+#' where \eqn{E{RR^{-X}(Z) | Y = 1}} can be estimated by the relative risk.
+#' Moreover, the relative risk can be approximated by the odds ratio if the outcome is rare.
+#' The odds ratio is estimated by logistic regression or conditional logistic regression. Thus, 
+#' \deqn{1 - E{RR^{-X}(Z) | Y = 1} \approx 1 - E{OR^{-X}(Z) | Y = 1}}
+#' where \eqn{E{OR^{-X}(Z) | Y = 1}} is the sum of the parameters depending on the exposure X.
+#' @author Elisabeth Dahlqwist, Arvid Sjolander
 #' @seealso \code{\link{glm}} and \code{\link{gee}} used for estimating the conditional logistic regression for mached case-control.
+#' @references Bruzzi, P., Green, S. B., Byar, D., Brinton, L. A., and Schairer, C. (1985). Estimating the population attributable risk for multiple risk factors using case-control data. \emph{American Journal of Epidemiology} \bold{122}, 904-914.
 #' @export
 AF.cc<-function(formula, data, exposure, clusterid,
                   sampling.design = "non.matched"){

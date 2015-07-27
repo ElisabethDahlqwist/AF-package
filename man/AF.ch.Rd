@@ -36,10 +36,23 @@ AF.ch(formula, data, exposure, ties = "breslow", time.sequence, clusterid)
 \code{AF.ch} estimate the model-based adjusted attributable fraction function for data from a cohort sampling design with time-to-event outcomes.
 }
 \details{
-Note that the estimation is an approximation based on the assumption that the outcome is rare.
+\code{Af.ch} estimate the attributable fraction for time-to-event outcomes
+under the scenario of an elimination of the exposure adjusted for confounders
+by Cox Proportional Hazards model. Let the Attributable fraction function be defined as
+\deqn{AF = 1 - ( 1 - St0(t) ) / ( 1 - St(t) )}
+where \eqn{St0(t)} denote the counterfactual survival function for the event if
+the exposure would be eliminated from the population at baseline. \eqn{St(t)} is the factual survival function.
+\eqn{St0(t)} is estimated by adjusting for confounders at baseline using the Cox Proportional Hazards model.
+\eqn{St0(t)} is denoted as \code{St0.est} in the output and \eqn{St(t)}
+is denoted as \code{St.est}.
 }
 \author{
-Elisabeth Dahlqwist, Arvid Sjölander
+Elisabeth Dahlqwist, Arvid Sjolander
+}
+\references{
+Chen, L., Lin, D. Y., and Zeng, D. (2010). Attributable fraction functions for censored event times. \emph{Biometrika} \bold{97}, 713-726.
+
+Sjolander, A. and Vansteelandt, S. (2014). Doubly robust estimation of attributable fractions in survival analysis. \emph{Statistical Methods in Medical Research}.
 }
 \seealso{
 \code{\link{coxph}} and \code{\link{Surv}}.

@@ -32,10 +32,25 @@ AF.cs(formula, data, exposure, clusterid)
 \code{AF.cs} estimate the model-based adjusted attributable fraction for data from a cross-sectional sampling design.
 }
 \details{
-Note that the estimation is an approximation based on the assumption that the outcome is rare.
+\code{Af.cs} estimate the attributable fraction for binary outcomes
+under the scenario of an elimination of the exposure adjusted for confounders
+by logistic regression. Let the AF be defined as
+\deqn{AF = 1 - Pr(Y_0 = 1) / Pr(Y = 1)}
+where \eqn{Pr(Y_0 = 1)} denote the counterfactual probability of the outcome if
+the exposure would be eliminated from the population.
+By adjusting the attributable fraction for confounders the counterfactual probablity
+ \eqn{Pr(Y_0 = 1)} can be estimated. \eqn{Pr(Y_0 = 1)} is denoted as \code{P0} in the
+ output and \eqn{Pr(Y = 1)} is denoted as \code{P}.
 }
 \author{
-Elisabeth Dahlqwist, Arvid Sjölander
+Elisabeth Dahlqwist, Arvid Sjolander
+}
+\references{
+Bruzzi, P., Green, S. B., Byar, D., Brinton, L. A., and Schairer, C. (1985). Estimating the population attributable risk for multiple risk factors using case-control data. \emph{American Journal of Epidemiology} \bold{122}, 904-914.
+
+Greenland, S. (1984). Bias in methods for deriving standardized morbidity ratio and attributable fraction estimates. \emph{Statistics in medicine} \bold{3}, 131-141.
+
+Greenland, S. and Drescher, K. (1993). Maximum Likelihood Estimation of the Attributable Fraction from logistic Models. \emph{Biometrics} \bold{49}, 865-872.
 }
 \seealso{
 \code{\link{glm}}.
