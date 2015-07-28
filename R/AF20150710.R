@@ -21,18 +21,19 @@ is.binary <- function(v) {
 #' @return \item{P0}{estimated counterfactual proportion of cases if exposure would be eliminated}
 #' @return \item{P0.var}{estimated variance of the estimate \code{P0}}
 #' @details \code{Af.cs} estimate the attributable fraction for binary outcomes
-#' under the scenario of an elimination of the exposure adjusted for confounders
-#' by logistic regression. Let the AF be defined as 
-#' \deqn{AF = 1 - Pr(Y_0 = 1) / Pr(Y = 1)}
-#' where \eqn{Pr(Y_0 = 1)} denote the counterfactual probability of the outcome if
-#' the exposure would be eliminated from the population.
+#' under the scenario of an elimination of the exposure \code{X} in the population. 
+#' The estimate is adjusted for confounders by logistic regression (\code{\link{glm}}).
+#'  Let the AF be defined as 
+#' \deqn{AF = 1 - \frac{Pr(Y_0=1)}{Pr(Y = 1)}}{AF = 1 - Pr(Y0 = 1) / Pr(Y = 1)}
+#' where \eqn{Pr(Y_0=1)}{Pr(Y0 = 1)} denote the counterfactual probability of the outcome if
+#' the exposure \code{X} would have been eliminated from the population.
 #' By adjusting the attributable fraction for confounders the counterfactual probablity
-#'  \eqn{Pr(Y_0 = 1)} can be estimated. \eqn{Pr(Y_0 = 1)} is denoted as \code{P0} in the 
+#'  \eqn{Pr(Y_0=1)}{Pr(Y0 = 1)} can be estimated. 
+#'  \eqn{Pr(Y_0=1)}{Pr(Y0 = 1)} is denoted as \code{P0} in the 
 #'  output and \eqn{Pr(Y = 1)} is denoted as \code{P}.
 #' @author Elisabeth Dahlqwist, Arvid Sjolander
 #' @seealso \code{\link{glm}}.
 #' @references Bruzzi, P., Green, S. B., Byar, D., Brinton, L. A., and Schairer, C. (1985). Estimating the population attributable risk for multiple risk factors using case-control data. \emph{American Journal of Epidemiology} \bold{122}, 904-914.
-#' @references Greenland, S. (1984). Bias in methods for deriving standardized morbidity ratio and attributable fraction estimates. \emph{Statistics in medicine} \bold{3}, 131-141. 
 #' @references Greenland, S. and Drescher, K. (1993). Maximum Likelihood Estimation of the Attributable Fraction from logistic Models. \emph{Biometrics} \bold{49}, 865-872.
 #' @export
 AF.cs<- function(formula, data, exposure, clusterid){
@@ -134,13 +135,13 @@ library(survival)
 #' @return \item{St0.est}{estimated counterfactual survival function if exposure would be eliminated}
 #' @return \item{St0.var}{estimated variance of the estimate \code{St.est}}
 #' @details \code{Af.ch} estimate the attributable fraction for time-to-event outcomes
-#' under the scenario of an elimination of the exposure adjusted for confounders
-#' by Cox Proportional Hazards model. Let the Attributable fraction function be defined as 
-#' \deqn{AF = 1 - ( 1 - St0(t) ) / ( 1 - St(t) )}
-#' where \eqn{St0(t)} denote the counterfactual survival function for the event if
-#' the exposure would be eliminated from the population at baseline. \eqn{St(t)} is the factual survival function. 
-#' \eqn{St0(t)} is estimated by adjusting for confounders at baseline using the Cox Proportional Hazards model.
-#' \eqn{St0(t)} is denoted as \code{St0.est} in the output and \eqn{St(t)}
+#' under the scenario of an elimination of the exposure \code{X} in the population. The estimate is adjusted for confounders
+#' by the Cox Proportional Hazards model (\code{\link{coxph}}). Let the Attributable fraction function be defined as 
+#' \deqn{AF = 1 -\frac{( 1 - St_0(t) )}{( 1 - St(t) )}}{AF = 1 - ( 1 - St0(t) ) / ( 1 - St(t) )}
+#' where \eqn{St_0(t)}{St0(t)} denote the counterfactual survival function for the event if
+#' the exposure would be eliminated from the population at baseline and \eqn{St(t)} is the factual survival function. 
+#' \eqn{St_0(t)}{St0(t)} is estimated by adjusting for confounders at baseline using the Cox Proportional Hazards model.
+#' \eqn{St_0(t)}{St0(t)} is denoted as \code{St0.est} in the output and \eqn{St(t)}
 #' is denoted as \code{St.est}.
 #' @author Elisabeth Dahlqwist, Arvid Sjolander
 #' @seealso \code{\link{coxph}} and \code{\link{Surv}}.
