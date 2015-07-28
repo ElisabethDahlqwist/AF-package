@@ -139,7 +139,7 @@ library(survival)
 #' by the Cox Proportional Hazards model (\code{\link{coxph}}). Let the Attributable fraction function be defined as 
 #' \deqn{AF = 1 -\frac{( 1 - St_0(t) )}{( 1 - St(t) )}}{AF = 1 - ( 1 - St0(t) ) / ( 1 - St(t) )}
 #' where \eqn{St_0(t)}{St0(t)} denote the counterfactual survival function for the event if
-#' the exposure would be eliminated from the population at baseline and \eqn{St(t)} is the factual survival function. 
+#' the exposure would have been eliminated from the population at baseline and \eqn{St(t)} denote the factual survival function. 
 #' \eqn{St_0(t)}{St0(t)} is estimated by adjusting for confounders at baseline using the Cox Proportional Hazards model.
 #' \eqn{St_0(t)}{St0(t)} is denoted as \code{St0.est} in the output and \eqn{St(t)}
 #' is denoted as \code{St.est}.
@@ -281,30 +281,32 @@ library(survival)
 library(drgee)
 #' @title Attributable fraction mached or non-matched case-control sampling design.
 #' @description \code{AF.cc} estimate the attributable fraction for data from a mached or non-matched case-control sampling design.
-#' @param formula an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a logistic regression by glm for non-matched cc and conditional logistic regression by gee (in package drgee) for macthed cc. For details see documentation on glm or gee.
+#' @param formula an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a logistic regression by \code{\link{glm}} for non-matched cc and conditional logistic regression by \code{\link{gee}} (in package \code{\link{drgee}}) for matched cc.
 #' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which the function is called.
 #' @param exposure the exposure variable. Must be binary (0/1).
 #' @param sampling.design a string which specify if the sampling is matched or non-matched case-control. Default setting is non-matched.
 #' @return \item{AF.est}{estimated attributable fraction}
 #' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est})}
-#' @return \item{log.or}{estimated log odds ratio}
+#' @return \item{log.or}{estimated log odds ratio adjusted for confounders. The sum of all parameters depending on the exposure variable \code{X} as specified by the user in the formula. If the model to be estimated is
+#'  \deqn{y = \beta{x}+\gamma{z}}{y = \beta x + \gamma z} the \code{log.odds} is the estimate of \eqn{\beta}.
+#'   If the model to be estimated is \deqn{y=\beta{x}+\gamma{z} +\psi{xz}}{y = \beta x +\gamma z +\psi xz} the \code{log.odds} is the estimate of \eqn{\beta + \psi}.}
 #' @details \code{Af.cc} estimate the attributable fraction for binary outcomes
-#' under the scenario of an elimination of the exposure adjusted for confounders
-#' by logistic regression for unmatched case-control and conditional logistic regression for matched case-control. 
-#' The estimation is an approximation based on the assumption that the outcome is rare.
+#' under the scenario of an elimination of the exposure \code{X} in the population. 
+#' The estimate is adjusted for confounders by logistic regression for unmatched case-control (\code{\link{glm}}) and conditional logistic regression for matched case-control (\code{\link{gee}}). 
+#' The estimation is an approximation based on the assumption that the outcome is rare so that the relative risk can be approximated by the odds ratio, for details see references \link{Bruzzi}.
 #' Let the AF be defined as 
-#' \deqn{AF = 1 - Pr(Y_0 = 1) / Pr(Y = 1)}
-#' where \eqn{Pr(Y_0 = 1)} denote the counterfactual probability of the outcome if
-#' the exposure would be eliminated from the population. Under the assumption that Z
-#' is the only confounder the probability \eqn{Pr(Y_0 = 1)} can be expressed as
-#' \deqn{E_z{Pr(Y = 1 | X = 0, Z)}}
-#' Using Baye's theorem this imply that the AF can be defined as
-#'   \deqn{AF = 1-\frac{E_z\{Pr(Y=1\mid X=0,Z)\}}{Pr(Y=1)}=1-E{RR^{-X}(Z)|Y=1}}{%
-#' AF = 1 - E_z{Pr( Y=1 | X=0, Z)} / Pr(Y = 1) = 1 - E{RR^{-X}(Z) | Y = 1}} 
+#' \deqn{AF = 1 - \frac{Pr(Y_0=1)}{Pr(Y = 1)}}{AF = 1 - Pr(Y0 = 1) / Pr(Y = 1)}
+#' where \eqn{Pr(Y_0=1)}{Pr(Y0 = 1)} denote the counterfactual probability of the outcome if
+#' the exposure \code{X} would have been eliminated from the population. Under the assumption that Z
+#' is the only confounder the probability \eqn{Pr(Y_0=1)}{Pr(Y0 = 1)} can be expressed as
+#' \deqn{Pr(Y_0=1)=E_z{Pr(Y=1\mid{X}=0,Z)}}{Pr(Y0=1) = E_z{Pr(Y = 1 | X = 0, Z)}}
+#' Using Bayes' theorem this imply that the AF can be defined as the equality
+#' \deqn{AF = 1-\frac{E_z\{Pr(Y=1\mid X=0,Z)\}}{Pr(Y=1)}=1-E{RR^{-X}(Z)|Y = 1}}{
+#' AF = 1 - E_z{Pr( Y = 1 | X = 0, Z)} / Pr(Y = 1) = 1 - E{RR^{-X} (Z) | Y = 1}} 
 #' where \eqn{E{RR^{-X}(Z) | Y = 1}} can be estimated by the relative risk.
 #' Moreover, the relative risk can be approximated by the odds ratio if the outcome is rare.
 #' The odds ratio is estimated by logistic regression or conditional logistic regression. Thus, 
-#' \deqn{1 - E{RR^{-X}(Z) | Y = 1} \approx 1 - E{OR^{-X}(Z) | Y = 1}}
+#' \deqn{1 - E{RR^{-X}(Z) | Y = 1} \approx 1 - E{OR^{-X}(Z) | Y = 1}}{1 - E{RR^{-X}(Z) | Y = 1} is approximately 1 - E{OR^{-X}(Z) | Y = 1}}
 #' where \eqn{E{OR^{-X}(Z) | Y = 1}} is the sum of the parameters depending on the exposure X.
 #' @author Elisabeth Dahlqwist, Arvid Sjolander
 #' @seealso \code{\link{glm}} and \code{\link{gee}} used for estimating the conditional logistic regression for mached case-control.
@@ -353,7 +355,7 @@ AF.cc<-function(formula, data, exposure, clusterid,
   }
   ## Create linear predictors to estimate the log odds ratio ##
        diff.design <- design0 - design
-   linearpredictor <- design %*% coef(fit)
+   linearpredictor <- design  %*% coef(fit)
   linearpredictor0 <- design0 %*% coef(fit)
   #log odds ratio#
   log.or <- linearpredictor - linearpredictor0
@@ -415,7 +417,7 @@ AF.cc<-function(formula, data, exposure, clusterid,
      linearpredictor <- design %*% coef(fit)
     linearpredictor0 <- design0 %*% coef(fit)
     #log odds ratio#
-    log.or <- linearpredictor-linearpredictor0
+    log.or <- linearpredictor - linearpredictor0
     ## Estimate approximate AF ##
     AF.est <- 1 - sum(data[, outcome] * exp( - log.or)) / sum(data[, outcome])
     #### Meat: score equations ####
@@ -429,7 +431,7 @@ AF.cc<-function(formula, data, exposure, clusterid,
     score.beta <- fit$res * design
     ### Meat ###
     score.equations <- cbind(score.AF, score.beta)
-    score.equations <- aggregate(score.equations, list(data[, clusterid]), sum)[, -1]
+    score.equations <- aggregate(score.equations, list(data[, clusterid]), sum)[, - 1]
     meat <- var(score.equations, na.rm=TRUE)
     #### Bread: hessian of score equations ####
     ## Hessian of score equation 1 ##
@@ -462,7 +464,6 @@ AF.cc<-function(formula, data, exposure, clusterid,
 }
 
 ############## Summary and print functions ##############
-
 print.AF<-function(object, digits = max(3L, getOption("digits") - 3L), ...){
   if(!object$n.cluster == 0) {
     Std.Error <- "Robust SE"
@@ -506,7 +507,13 @@ CI <- function(AF, Std.Error, confidence.level, CI.transform){
   CI <- cbind(lower, upper)
   return(CI)
 }
-
+#' @title Summary function for objects of class "\code{AF}".
+#' @description Gives a summary of the AF estimate(s) including zvalue, p-value and confidence interval(s).
+#' @param object an object of class \code{AF} from \code{\link{AF.cs}}, \code{\link{AF.ch}} or \code{\link{AF.cc}} functions.
+#' @param confidence.level user-specified confidence level for the confidence intervals. If not specified the default is 95 percent. Should be specified in decimals such as 0.95 for 95 percent.
+#' @param CI.transform user-specified transformation of the Wald confidence interval(s). Options are \code{untransformed}, \code{log} and \code{logit}. If not specified untransformed will be calculated.
+#' @author Elisabeth Dahlqwist, Arvid Sjolander
+#' @export
 summary.AF <- function(object, digits = max(3L, getOption("digits") - 3L),
                        confidence.level, CI.transform, ...){
   if(missing(confidence.level)) confidence.level <- 0.95
@@ -609,7 +616,15 @@ print.summary.AF <- function(x, digits = max(3L, getOption("digits") - 3L), ...)
 #ARVID: in plot.AF, change this:
 #delete blankspace before "%" in legend
 
-
+#' @title Plot function for objects from the function \code{\link{AF.ch}}.
+#' @description Creates a simple scatterplot for the Attributable fraction function with time sequence (defined by the user in the \code{AF.ch} function) on the x-axis and the Attributable fraction function estimate on the y-axis. 
+#' @param object an object of class \code{AF} from the \code{AF.ch} function.
+#' @param confidence.level user-specified confidence level for the confidence intervals. If not specified the default is 95 percent. Should be specified in decimals such as 0.95 for 95 percent.
+#' @param CI.transform user-specified transformation of the Wald confidence interval(s). Options are \code{untransformed}, \code{log} and \code{logit}. If not specified untransformed will be calculated.
+#' @param xlab label on the x-axis. If not specified \emph{"Time"} will be displayed.
+#' @param main main title of the plot. If not specified  \emph{"Estimate of the attributable fraction function"} will be displayed.
+#' @author Elisabeth Dahlqwist, Arvid Sjolander
+#' @export
 plot.AF <- function(object, digits = max(3L, getOption("digits") - 3L),
                     CI = FALSE, confidence.level, CI.transform, xlab, main, ...){
   modelcall <- as.character(object$fit$call[1])
