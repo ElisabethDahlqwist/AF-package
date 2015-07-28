@@ -122,12 +122,12 @@ AF.cs<- function(formula, data, exposure, clusterid){
 library(survival)
 #' @title Attributable fraction function from cohort sampling design with time-to-event outcomes.
 #' @description \code{AF.ch} estimate the model-based adjusted attributable fraction function for data from a cohort sampling design with time-to-event outcomes.
-#' @param formula a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a survival object as returned by the Surv function. A symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a Cox Proportional Hazards model in the survival package. For details see documentation on coxph.
+#' @param formula a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a survival object as returned by the Surv function (\code{\link{Surv}}). A symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a Cox Proportional Hazards model in the survival package. For details see documentation on coxph (\code{\link{coxph}}).
 #' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which the function is called.
 #' @param exposure the exposure variable. Must be binary (0/1).
-#' @param ties a character string specifying the method for tie handling. If there are no tied death times all the methods are equivalent. Use the Breslow method by default.
-#' @param time.sequence a single value or vector of time points of which the attrubutable fraction function will be calculated. If not specified the death times will be used as default.
-#' @param clusterid for clustered data specify the variable in the data frame which is the cluster id in order to calculate cluster robust standard errors.
+#' @param ties a character string specifying the method for tie handling. If there are no tied death times all the methods are equivalent. Uses the Breslow method by default.
+#' @param time.sequence a scalar or vector of time points specified by the user for which the Attributable fraction function is estimated. If not specified the death times will be used.
+#' @param clusterid for clustered data specify variable name for the cluster id in order to calculate cluster robust standard errors.
 #' @return \item{AF.est}{estimated attributable fraction function for every time point specified by \code{time.sequence}}
 #' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est}) for every time point specified by \code{time.sequence}}
 #' @return \item{St.est}{estimated factual survival function}
