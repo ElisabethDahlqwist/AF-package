@@ -1,6 +1,4 @@
-
 ############## Common functions ##############
-#ARVID: is.binary(c(NA,0,1)) gives error message
 is.binary <- function(v) {
   x <- unique(v)
   if((length(x) - sum(is.na(x)) == 2L) & (max(x) == 1 & min(x) == 0)) TRUE
@@ -12,10 +10,10 @@ is.binary <- function(v) {
 #' @description \code{AF.cs} estimate the model-based adjusted attributable fraction for data from a cross-sectional sampling design.
 #' @param formula an object of class "\code{\link{formula}}" (or one that can be coerced to that class): a symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a logistic regression by \code{\link{glm}}.
 #' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which the function is called.
-#' @param exposure the exposure variable. Must be binary (0/1).
+#' @param exposure the exposure variable. Must be binary (0/1) where 0 is coded as unexposed.
 #' @param clusterid for clustered data specify the variable in the data frame which is the cluster id in order to calculate cluster robust standard errors.
 #' @return \item{AF.est}{estimated attributable fraction}
-#' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est})}
+#' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est}). The variance is estimated by the Sandwich estimator and the delta method}
 #' @return \item{P}{estimated factual proportion of cases}
 #' @return \item{P.var}{estimated variance of the estimate \code{P}}
 #' @return \item{P0}{estimated counterfactual proportion of cases if exposure would be eliminated}
@@ -124,12 +122,12 @@ library(survival)
 #' @description \code{AF.ch} estimate the model-based adjusted attributable fraction function for data from a cohort sampling design with time-to-event outcomes.
 #' @param formula a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a survival object as returned by the Surv function (\code{\link{Surv}}). A symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a Cox Proportional Hazards model in the survival package. For details see documentation on coxph (\code{\link{coxph}}).
 #' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which the function is called.
-#' @param exposure the exposure variable. Must be binary (0/1).
+#' @param exposure the exposure variable. Must be binary (0/1) where 0 is coded as unexposed.
 #' @param ties a character string specifying the method for tie handling. If there are no tied death times all the methods are equivalent. Uses the Breslow method by default.
 #' @param time.sequence a scalar or vector of time points specified by the user for which the Attributable fraction function is estimated. If not specified the death times will be used.
 #' @param clusterid for clustered data specify variable name for the cluster id in order to calculate cluster robust standard errors.
 #' @return \item{AF.est}{estimated attributable fraction function for every time point specified by \code{time.sequence}}
-#' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est}) for every time point specified by \code{time.sequence}}
+#' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est}) for every time point specified by \code{time.sequence}. The variance is estimated by the Sandwich estimator and the delta method}
 #' @return \item{St.est}{estimated factual survival function}
 #' @return \item{St.var}{estimated variance of the estimate \code{St.est}}
 #' @return \item{St0.est}{estimated counterfactual survival function if exposure would be eliminated}
@@ -281,12 +279,12 @@ library(survival)
 library(drgee)
 #' @title Attributable fraction mached or non-matched case-control sampling design.
 #' @description \code{AF.cc} estimate the attributable fraction for data from a mached or non-matched case-control sampling design.
-#' @param formula an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a logistic regression by \code{\link{glm}} for non-matched cc and conditional logistic regression by \code{\link{gee}} (in package \code{\link{drgee}}) for matched cc.
-#' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which the function is called.
-#' @param exposure the exposure variable. Must be binary (0/1).
+#' @param formula an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a logistic regression by \code{\link{glm}} for non-matched case-control and conditional logistic regression by \code{\link{gee}} (in package \code{\link{drgee}}) for matched case-control.
+#' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment (formula), typically the environment from which the function is called.
+#' @param exposure the exposure variable. Must be binary (0/1) where 0 is coded as unexposed.
 #' @param sampling.design a string which specify if the sampling is matched or non-matched case-control. Default setting is non-matched.
 #' @return \item{AF.est}{estimated attributable fraction}
-#' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est})}
+#' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est}). The variance is estimated by the Sandwich estimator and the delta method}
 #' @return \item{log.or}{estimated log odds ratio adjusted for confounders. The sum of all parameters depending on the exposure variable \code{X} as specified by the user in the formula. If the model to be estimated is
 #'  \deqn{y = \beta{x}+\gamma{z}}{y = \beta x + \gamma z} the \code{log.odds} is the estimate of \eqn{\beta}.
 #'   If the model to be estimated is \deqn{y=\beta{x}+\gamma{z} +\psi{xz}}{y = \beta x +\gamma z +\psi xz} the \code{log.odds} is the estimate of \eqn{\beta + \psi}.}
@@ -617,8 +615,8 @@ print.summary.AF <- function(x, digits = max(3L, getOption("digits") - 3L), ...)
 #delete blankspace before "%" in legend
 
 #' @title Plot function for objects from the function \code{\link{AF.ch}}.
-#' @description Creates a simple scatterplot for the Attributable fraction function with time sequence (defined by the user in the \code{AF.ch} function) on the x-axis and the Attributable fraction function estimate on the y-axis. 
-#' @param object an object of class \code{AF} from the \code{AF.ch} function.
+#' @description Creates a simple scatterplot for the Attributable fraction function with time sequence (defined by the user in the \code{\link{AF.ch}} function) on the x-axis and the Attributable fraction function estimate on the y-axis. 
+#' @param object an object of class \code{AF} from the \code{\link{AF.ch}} function.
 #' @param confidence.level user-specified confidence level for the confidence intervals. If not specified the default is 95 percent. Should be specified in decimals such as 0.95 for 95 percent.
 #' @param CI.transform user-specified transformation of the Wald confidence interval(s). Options are \code{untransformed}, \code{log} and \code{logit}. If not specified untransformed will be calculated.
 #' @param xlab label on the x-axis. If not specified \emph{"Time"} will be displayed.
@@ -629,7 +627,7 @@ plot.AF <- function(object, digits = max(3L, getOption("digits") - 3L),
                     CI = FALSE, confidence.level, CI.transform, xlab, main, ...){
   modelcall <- as.character(object$fit$call[1])
   if(!modelcall == "coxph")
-    stop("Plot function is only available for the attributable fraction function", call. = FALSE)
+    stop("Plot function is only available for the attributable fraction function. That is objects from the AF.ch function", call. = FALSE)
   if(missing(confidence.level)) confidence.level <- 0.95
   if(missing(CI.transform)) CI.transform <- "untransformed"
   if(missing(xlab)) xlab <- "Time"
