@@ -118,7 +118,7 @@ AF.cs<- function(formula, data, exposure, clusterid){
 
 ############## AF function for cohort time-to-event outcomes #####################
 library(survival)
-#' @title Attributable fraction function from cohort sampling design with time-to-event outcomes.
+#' @title Attributable fraction function cohort sampling design with time-to-event outcomes.
 #' @description \code{AF.ch} estimate the model-based adjusted attributable fraction function for data from a cohort sampling design with time-to-event outcomes.
 #' @param formula a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a survival object as returned by the Surv function (\code{\link{Surv}}). A symbolic description of the model used for adjusting for confounders. The independent variables should be specified as the exposure and confounders. The dependent variable should be specified as the outcome of interest. The formula is used to fit a Cox Proportional Hazards model in the survival package. For details see documentation on coxph (\code{\link{coxph}}).
 #' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which the function is called.
@@ -283,15 +283,16 @@ library(drgee)
 #' @param data an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment (formula), typically the environment from which the function is called.
 #' @param exposure the exposure variable. Must be binary (0/1) where 0 is coded as unexposed.
 #' @param sampling.design a string which specify if the sampling is matched or non-matched case-control. Default setting is non-matched.
+#' @param clusterid for matched case-control specify variable name for the cluster id.
 #' @return \item{AF.est}{estimated attributable fraction}
 #' @return \item{AF.var}{estimated variance of the AF estimate (\code{AF.est}). The variance is estimated by the Sandwich estimator and the delta method}
-#' @return \item{log.or}{estimated log odds ratio adjusted for confounders. The sum of all parameters depending on the exposure variable \code{X} as specified by the user in the formula. If the model to be estimated is
+#' @return \item{log.or}{a vector of the estimated log odds ratio for every individual. The \code{log.odds} is the estimated coefficient for the exposure variable \code{X} for every level of the confounder \code{Z} as specified by the user in the formula. If the model to be estimated is
 #'  \deqn{y = \beta{x}+\gamma{z}}{y = \beta x + \gamma z} the \code{log.odds} is the estimate of \eqn{\beta}.
-#'   If the model to be estimated is \deqn{y=\beta{x}+\gamma{z} +\psi{xz}}{y = \beta x +\gamma z +\psi xz} the \code{log.odds} is the estimate of \eqn{\beta + \psi}.}
+#'   If the model to be estimated is \deqn{y=\beta{x}+\gamma{z} +\psi{xz}}{y = \beta x +\gamma z +\psi xz} the \code{log.odds} is the estimate of \eqn{\beta + \psi{z}}{\beta + \psi z}.}
 #' @details \code{Af.cc} estimate the attributable fraction for binary outcomes
 #' under the scenario of an elimination of the exposure \code{X} in the population. 
 #' The estimate is adjusted for confounders by logistic regression for unmatched case-control (\code{\link{glm}}) and conditional logistic regression for matched case-control (\code{\link{gee}}). 
-#' The estimation is an approximation based on the assumption that the outcome is rare so that the relative risk can be approximated by the odds ratio, for details see references \link{Bruzzi}.
+#' The estimation is an approximation based on the assumption that the outcome is rare so that the relative risk can be approximated by the odds ratio, for details see references Bruzzi et. al.
 #' Let the AF be defined as 
 #' \deqn{AF = 1 - \frac{Pr(Y_0=1)}{Pr(Y = 1)}}{AF = 1 - Pr(Y0 = 1) / Pr(Y = 1)}
 #' where \eqn{Pr(Y_0=1)}{Pr(Y0 = 1)} denote the counterfactual probability of the outcome if
@@ -462,7 +463,7 @@ AF.cc<-function(formula, data, exposure, clusterid,
 }
 
 ############## Summary and print functions ##############
-print.AF<-function(object, digits = max(3L, getOption("digits") - 3L), ...){
+print.AF<-function(object, ...){
   if(!object$n.cluster == 0) {
     Std.Error <- "Robust SE"
     se <- "cluster-robust standard error"
@@ -510,6 +511,8 @@ CI <- function(AF, Std.Error, confidence.level, CI.transform){
 #' @param object an object of class \code{AF} from \code{\link{AF.cs}}, \code{\link{AF.ch}} or \code{\link{AF.cc}} functions.
 #' @param confidence.level user-specified confidence level for the confidence intervals. If not specified the default is 95 percent. Should be specified in decimals such as 0.95 for 95 percent.
 #' @param CI.transform user-specified transformation of the Wald confidence interval(s). Options are \code{untransformed}, \code{log} and \code{logit}. If not specified untransformed will be calculated.
+#' @param digits maximum number of digits
+#' @param ... further arguments to be passed to the summary function 
 #' @author Elisabeth Dahlqwist, Arvid Sjolander
 #' @export
 summary.AF <- function(object, digits = max(3L, getOption("digits") - 3L),
@@ -558,7 +561,6 @@ summary.AF <- function(object, digits = max(3L, getOption("digits") - 3L),
 
 #ARVID: in print.summary, change this:
 #delete blankspace before "%"
-
 print.summary.AF <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
   if(!x$n.cluster == 0) Std.Error <- "Robust SE"
   else Std.Error <- "Std.Error"
@@ -617,14 +619,16 @@ print.summary.AF <- function(x, digits = max(3L, getOption("digits") - 3L), ...)
 #' @title Plot function for objects from the function \code{\link{AF.ch}}.
 #' @description Creates a simple scatterplot for the Attributable fraction function with time sequence (defined by the user in the \code{\link{AF.ch}} function) on the x-axis and the Attributable fraction function estimate on the y-axis. 
 #' @param object an object of class \code{AF} from the \code{\link{AF.ch}} function.
+#' @param CI if TRUE confidence intervals are estimated and ploted in the graph.
 #' @param confidence.level user-specified confidence level for the confidence intervals. If not specified the default is 95 percent. Should be specified in decimals such as 0.95 for 95 percent.
 #' @param CI.transform user-specified transformation of the Wald confidence interval(s). Options are \code{untransformed}, \code{log} and \code{logit}. If not specified untransformed will be calculated.
 #' @param xlab label on the x-axis. If not specified \emph{"Time"} will be displayed.
 #' @param main main title of the plot. If not specified  \emph{"Estimate of the attributable fraction function"} will be displayed.
+#' @param ... further arguments to be passed to the plot function
 #' @author Elisabeth Dahlqwist, Arvid Sjolander
 #' @export
-plot.AF <- function(object, digits = max(3L, getOption("digits") - 3L),
-                    CI = FALSE, confidence.level, CI.transform, xlab, main, ...){
+plot.AF <- function(object, CI = FALSE, confidence.level, 
+                    CI.transform, xlab, main, ...){
   modelcall <- as.character(object$fit$call[1])
   if(!modelcall == "coxph")
     stop("Plot function is only available for the attributable fraction function. That is objects from the AF.ch function", call. = FALSE)
@@ -651,14 +655,3 @@ plot.AF <- function(object, digits = max(3L, getOption("digits") - 3L),
   }
 }
 
-#plot(est2, CI=T, confidence.level=0.97, time.sequence = c(1,2), CI.transform="logit",
-#     xlab= "Time since diagnosis (months)", main = "AF function cancer survival")
-
-#plot(est1)
-#plot(est2, CI=T, confidence.level=0.97, CI.transform="logit")
-
-
-#require(ggplot2)
-#ggplot(df, aes(Time = Time, y = AF)) +
- # geom_point(size = 4) +
- # geom_errorbar(aes(ymax = U, ymin = L))
